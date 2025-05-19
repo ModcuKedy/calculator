@@ -1,2 +1,5 @@
-# calculator
-Basic calculator just go to website
+#calculator
+basic calculator
+To use it, simply go to the file that says index.html. 
+
+ 
