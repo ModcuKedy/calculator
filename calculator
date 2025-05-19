@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Hesap Makinesi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#3D3CB4',
+                        darkBg: '#181818',
+                        darkSecondary: '#282828'
+                    }
+                }
+            }
+        }
+
+        // Karanlık mod kontrolü
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+</head>
+<body class="bg-white dark:bg-darkBg text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md bg-gray-100 dark:bg-darkSecondary rounded-2xl shadow-lg overflow-hidden">
+        <div class="p-4">
+            <h1 class="text-2xl font-bold text-center mb-2 text-primary dark:text-primary">Modern Hesap Makinesi</h1>
+            
+            <!-- Ekran -->
+            <div class="bg-white dark:bg-darkBg rounded-xl mb-4 p-3 h-24 flex flex-col items-end justify-end">
+                <div id="history" class="text-sm text-gray-500 dark:text-gray-400 w-full text-right overflow-x-auto whitespace-nowrap h-6"></div>
+                <div id="display" class="text-3xl font-semibold w-full text-right overflow-x-auto">0</div>
+            </div>
+            
+            <!-- Butonlar -->
+            <div class="grid grid-cols-4 gap-2">
+                <!-- Üst Sıra - Özel Fonksiyonlar -->
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-3 text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="clearAll()">AC</button>
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-3 text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="deleteLastChar()">⌫</button>
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-3 text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="appendValue('%')">%</button>
+                <button class="operator-btn col-span-1 bg-primary text-white rounded-lg p-3 text-lg font-medium hover:bg-secondary transition-colors" onclick="appendValue('/')">/</button>
+                
+                <!-- 7, 8, 9, × -->
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('7')">7</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('8')">8</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('9')">9</button>
+                <button class="operator-btn col-span-1 bg-primary text-white rounded-lg p-3 text-lg font-medium hover:bg-secondary transition-colors" onclick="appendValue('*')">×</button>
+                
+                <!-- 4, 5, 6, - -->
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('4')">4</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('5')">5</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('6')">6</button>
+                <button class="operator-btn col-span-1 bg-primary text-white rounded-lg p-3 text-lg font-medium hover:bg-secondary transition-colors" onclick="appendValue('-')">-</button>
+                
+                <!-- 1, 2, 3, + -->
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('1')">1</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('2')">2</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('3')">3</button>
+                <button class="operator-btn col-span-1 bg-primary text-white rounded-lg p-3 text-lg font-medium hover:bg-secondary transition-colors" onclick="appendValue('+')">+</button>
+                
+                <!-- 0, ., = -->
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('0')">0</button>
+                <button class="number-btn col-span-1 bg-white dark:bg-gray-800 rounded-lg p-3 text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="appendValue('.')">.</button>
+                <button class="calculate-btn col-span-2 bg-primary text-white rounded-lg p-3 text-lg font-medium hover:bg-secondary transition-colors" onclick="calculate()">=</button>
+            </div>
+            
+            <!-- İlave Fonksiyonlar -->
+            <div class="grid grid-cols-4 gap-2 mt-2">
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="calculateSquareRoot()">√x</button>
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="calculatePower()">x²</button>
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="calculatePowerY()">xⁿ</button>
+                <button class="operator-btn col-span-1 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" onclick="calculateReciprocal()">1/x</button>
+            </div>
+        </div>
+    </div>
+    
+    <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Modern Hesap Makinesi v1.0</p>
+
+    <script>
+        // DOM elementleri
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+        
+        // Değişkenler
+        let currentValue = '0';
+        let historyValue = '';
+        let lastResult = null;
+        let waitingForOperand = false;
+        
+        // Ekranı güncelle
+        function updateDisplay() {
+            display.textContent = currentValue;
+            history.textContent = historyValue;
+        }
+        
+        // Değer ekle
+        function appendValue(val) {
+            // Eğer operatör bekliyorsak ve sayı girildiyse, ekranı temizle
+            if (waitingForOperand && !isNaN(parseInt(val)) || val === '.') {
+                currentValue = '0';
+                waitingForOperand = false;
+            }
+            
+            // Operatör girildiğinde
+            if (['+', '-', '*', '/', '%'].includes(val)) {
+                if (historyValue === '' && currentValue !== '0') {
+                    historyValue = currentValue;
+                } else if (waitingForOperand && historyValue.slice(-1) !== val) {
+                    // Operatörü değiştirme
+                    historyValue = historyValue.slice(0, -1) + val;
+                    updateDisplay();
+                    return;
+                } else if (!waitingForOperand) {
+                    calculate(true);
+                    historyValue = currentValue;
+                }
+                
+                historyValue += val;
+                waitingForOperand = true;
+                updateDisplay();
+                return;
+            }
+            
+            // Sayı veya nokta ekle
+            if (currentValue === '0' && val !== '.') {
+                currentValue = val;
+            } else if (val === '.' && currentValue.includes('.')) {
+                // Birden fazla nokta eklenemez
+                return;
+            } else {
+                currentValue += val;
+            }
+            
+            updateDisplay();
+        }
+        
+        // Hesapla
+        function calculate(addToHistory = false) {
+            try {
+                let expression = historyValue + currentValue;
+                
+                // Yüzde işlemi
+                expression = expression.replace(/(\d+\.?\d*|\))%/g, function(match) {
+                    return `(${match.replace('%', '')})/100`;
+                });
+                
+                const result = eval(expression).toString();
+                
+                if (!addToHistory) {
+                    historyValue = '';
+                    waitingForOperand = false;
+                }
+                
+                currentValue = result;
+                lastResult = result;
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Hata';
+                updateDisplay();
+            }
+        }
+        
+        // Karekök hesapla
+        function calculateSquareRoot() {
+            try {
+                const value = parseFloat(currentValue);
+                if (value < 0) {
+                    currentValue = 'Hata';
+                } else {
+                    historyValue = `√(${currentValue})`;
+                    currentValue = Math.sqrt(value).toString();
+                }
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Hata';
+                updateDisplay();
+            }
+        }
+        
+        // Kare hesapla
+        function calculatePower() {
+            try {
+                const value = parseFloat(currentValue);
+                historyValue = `(${currentValue})²`;
+                currentValue = (value * value).toString();
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Hata';
+                updateDisplay();
+            }
+        }
+        
+        // Üs alma
+        function calculatePowerY() {
+            historyValue = `${currentValue}^`;
+            waitingForOperand = true;
+            updateDisplay();
+        }
+        
+        // Tersini hesapla (1/x)
+        function calculateReciprocal() {
+            try {
+                const value = parseFloat(currentValue);
+                if (value === 0) {
+                    currentValue = 'Hata';
+                } else {
+                    historyValue = `1/(${currentValue})`;
+                    currentValue = (1 / value).toString();
+                }
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Hata';
+                updateDisplay();
+            }
+        }
+        
+        // Tümünü temizle
+        function clearAll() {
+            currentValue = '0';
+            historyValue = '';
+            lastResult = null;
+            waitingForOperand = false;
+            updateDisplay();
+        }
+        
+        // Son karakteri sil
+        function deleteLastChar() {
+            if (currentValue.length === 1) {
+                currentValue = '0';
+            } else {
+                currentValue = currentValue.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        // Klavye desteği
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            // Sayılar ve operatörler
+            if (/[\d.+\-*/%]/.test(key)) {
+                appendValue(key);
+            } 
+            // Enter/Eşittir tuşu
+            else if (key === 'Enter' || key === '=') {
+                calculate();
+            } 
+            // Backspace tuşu
+            else if (key === 'Backspace') {
+                deleteLastChar();
+            }
+            // Escape tuşu (AC)
+            else if (key === 'Escape') {
+                clearAll();
+            }
+        });
+    </script>
+</body>
+</html>
